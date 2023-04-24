@@ -6,9 +6,6 @@ import sys
 # __name__ => 모듈명. 여기서는 app.py 라는 모듈이 실행 되므로 main 이라는 문자열이 담긴다.
 app = Flask(__name__)
 
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0', port=5050)
-
 
 @app.route("/")
 def hello():
