@@ -50,7 +50,7 @@ def summarizeByBart():
     summary = summarize(content)
     print("Summarized By KoBART = ", summary)
 
-    return summary
+    return jsonify({'content': summary})
 
 
 def extract3(url):
