@@ -1,8 +1,12 @@
+import torch
+import math
 from flask import Flask, request, jsonify
 from goose3 import Goose
 from newspaper import Article
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
+from transformers import PreTrainedTokenizerFast
+from transformers.models.bart import BartForConditionalGeneration
 
 g = Goose({'browser_user_agent': 'Mozilla', 'parser_class': 'lxml'})
 
@@ -39,6 +43,16 @@ def textExtract():
         return jsonify({'content': content3})
 
 
+@app.route('/summarize', methods=['POST'])
+def summarizeByBart():
+    content = request.json['content']
+
+    summary = summarize(content)
+    print("Summarized By KoBART = ", summary)
+
+    return summary
+
+
 def extract3(url):
     article = g.extract(url=url)
     text = article.cleaned_text
@@ -71,3 +85,16 @@ def extract1(url):
     text = '\n'.join(chunk for chunk in chunks if chunk)
 
     return text
+
+
+def summarize(text):
+    model = BartForConditionalGeneration.from_pretrained('/home/mas/qwer/qwer-text-train/kobart_summary')
+    tokenizer = PreTrainedTokenizerFast.from_pretrained('gogamza/kobart-base-v1')
+
+    input_ids = tokenizer.encode(text)
+    input_ids = torch.tensor(input_ids)
+    input_ids = input_ids.unsqueeze(0)
+    output = model.generate(input_ids, eos_token_id=1, max_length=512, num_beams=5)
+    summary = tokenizer.decode(output[0], skip_special_tokens=True)
+
+    return summary
