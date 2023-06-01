@@ -34,7 +34,7 @@ def textExtract():
 
     content3 = ""
     length = len(content1) + len(content2)
-    if length > 10:
+    if length > 30:
         # response body에 content 담아서 return
         return jsonify({'content': content1 + content2})
     else:
