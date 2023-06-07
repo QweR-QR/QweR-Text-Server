@@ -5,6 +5,9 @@ from goose3 import Goose
 from newspaper import Article
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
+from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
+import re
 from transformers import PreTrainedTokenizerFast
 from transformers.models.bart import BartForConditionalGeneration
 
@@ -26,20 +29,25 @@ def textExtract():
     print("추출할 url:", url)
 
     # 추출한 url에서 content parsing
-    content1 = extract3(url)
-    print("goose로 추출된 컨텐츠: ", content1)
-
-    content2 = extract2(url)
-    print("newspaper로 추출된 컨텐츠: ", content2)
-
-    content3 = ""
-    length = len(content1) + len(content2)
-    if length > 30:
-        # response body에 content 담아서 return
-        return jsonify({'content': content1 + content2})
+    if url.startswith("https://naver.me/"):
+        content1 = extract4(url)
+        return jsonify({'content': content1})
     else:
-        # response body에 content 담아서 return
-        content3 = extract1(url)
+        content1 = extract3(url)
+        print("goose로 추출된 컨텐츠: ", content1)
+
+        content2 = extract2(url)
+        print("newspaper로 추출된 컨텐츠: ", content2)
+
+        content3 = ""
+        length = len(content1) + len(content2)
+
+        if length > 30:
+            # response body에 content 담아서 return
+            return jsonify({'content': content1 + content2})
+        else:
+            # response body에 content 담아서 return
+            content3 = extract1(url)
         return jsonify({'content': content3})
 
 
@@ -84,6 +92,18 @@ def extract1(url):
     # drop blank lines
     text = '\n'.join(chunk for chunk in chunks if chunk)
 
+    return text
+
+
+def extract4(url):
+    driver = webdriver.Chrome(ChromeDriverManager().install())
+    driver.get(url)
+    html_source = driver.page_source
+    soup = BeautifulSoup(html_source, 'html.parser')
+    for script in soup(["script", "style"]):
+        script.decompose()
+    text = soup.get_text()
+    text = re.sub(r'\s+', ' ', text)
     return text
 
 
