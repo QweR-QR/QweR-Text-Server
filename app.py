@@ -96,7 +96,12 @@ def extract1(url):
 
 
 def extract4(url):
-    driver = webdriver.Chrome(ChromeDriverManager().install())
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+
+    driver = webdriver.Chrome(executable_path="/home/mas/qwer/chromedriver", chrome_options=chrome_options)
     driver.get(url)
     html_source = driver.page_source
     soup = BeautifulSoup(html_source, 'html.parser')
