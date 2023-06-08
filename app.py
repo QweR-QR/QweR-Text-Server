@@ -29,7 +29,7 @@ def textExtract():
     print("추출할 url:", url)
 
     # 추출한 url에서 content parsing
-    if url.startswith("https://naver.me/"):
+    if "naver.me" in url:
         content1 = extract4(url)
         return jsonify({'content': content1})
     else:
